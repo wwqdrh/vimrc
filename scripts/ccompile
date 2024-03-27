@@ -4,6 +4,50 @@ __DIRNAME=$(pwd) # 假设当前目录就是源文件所在的目录
 __CMAKELISTS=CMakeLists.txt
 __COMPILECOMMAND=compile_commands.json
 
+
+function compile() {
+    if [ -z "$1" ]; then
+        echo "Usage: $0 compile <name>"
+        return 1
+    fi
+
+    if [ ! -f "$1" ]; then
+        echo "$1 not a file"
+        return 1
+    fi
+    
+    # cmakelists
+    echo "cmake_minimum_required(VERSION 3.20)" > $__CMAKELISTS
+    echo "project(example)" >> $__CMAKELISTS
+    echo "set(CMAKE_CXX_STANDARD 17)" >> $__CMAKELISTS
+    echo "set(CMAKE_EXPORT_COMPILE_COMMANDS ON)" >> $__CMAKELISTS
+    # compile_commands.json
+    echo "[" > $__COMPILECOMMAND
+    first=true
+    # 读取标准输入，直到文件结束
+    while read -r line; do
+      # 检查是否是一个节的开始，比如[twitter]
+      if [[ $line =~ ^\[(.*)\]$ ]]; then
+        # 提取节名，比如twitter
+        section=${BASH_REMATCH[1]}
+        # 调用parse_section函数，传入节名，得到一个json对象
+        json_object=$(parse_section "$section")
+        # 把json对象添加到json数组中
+        if [ "$first" = true ]; then
+          # 将json对象追加到compile_commands.json文件中，不用逗号分隔
+          echo "$json_object" >> $__COMPILECOMMAND
+          # 将标识位变量设为false
+          first=false
+        else
+          # 将json对象追加到compile_commands.json文件中，用逗号分隔
+          echo ",$json_object" >> $__COMPILECOMMAND
+        fi
+      fi
+    done < "$1"
+    echo "]" >> $__COMPILECOMMAND
+}
+
+
 # 定义一个函数，它接受一个节名，比如[twitter]，并解析它的内容，返回一个json对象
 function parse_section() {
   local section=$1
@@ -61,33 +105,32 @@ function parse_section() {
   echo "$json"
 }
 
+function build() {
+    cmake -S . -B build
+    make -C build "$1"
+}
 
-# cmakelists
-echo "cmake_minimum_required(VERSION 3.20)" > $__CMAKELISTS
-echo "project(example)" >> $__CMAKELISTS
-echo "set(CMAKE_CXX_STANDARD 17)" >> $__CMAKELISTS
-echo "set(CMAKE_EXPORT_COMPILE_COMMANDS ON)" >> $__CMAKELISTS
-# compile_commands.json
-echo "[" > $__COMPILECOMMAND
-first=true
-# 读取标准输入，直到文件结束
-while read -r line; do
-  # 检查是否是一个节的开始，比如[twitter]
-  if [[ $line =~ ^\[(.*)\]$ ]]; then
-    # 提取节名，比如twitter
-    section=${BASH_REMATCH[1]}
-    # 调用parse_section函数，传入节名，得到一个json对象
-    json_object=$(parse_section "$section")
-    # 把json对象添加到json数组中
-    if [ "$first" = true ]; then
-      # 将json对象追加到compile_commands.json文件中，不用逗号分隔
-      echo "$json_object" >> $__COMPILECOMMAND
-      # 将标识位变量设为false
-      first=false
-    else
-      # 将json对象追加到compile_commands.json文件中，用逗号分隔
-      echo ",$json_object" >> $__COMPILECOMMAND
+function run() {
+    if [ -z "$1" ]; then
+        echo "Usage: $0 run <name>"
+        return 1
     fi
-  fi
-done
-echo "]" >> $__COMPILECOMMAND
+    ./build/"$1"
+}
+
+case "$1" in
+    compile)
+        compile "$2"
+        ;;
+    build)
+        build "$2"
+        ;;
+    run)
+        run "$2"
+        ;;
+    *)
+        echo "Usage: $0 <command> <name>"
+        echo "Commands: compile, build, run"
+        exit 1
+        ;;
+esac

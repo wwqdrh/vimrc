@@ -9,7 +9,7 @@ pushd .vim
 git submodule update --init
 
 # 安装scripts命令
-cp scripts/* /usr/local/bin
+sudo cp -rf scripts/* /usr/local/bin
 
 popd
 
