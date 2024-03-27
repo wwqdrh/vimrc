@@ -1,7 +1,15 @@
-## Installation
+## Install
 
 ```bash
 wget -qO- https://raw.githubusercontent.com/wwqdrh/vimrc/main/install.sh | bash
+```
+
+## Uninstall
+
+```bash
+rm -rf ~/.vim
+
+mv ~/.vimrc.bak ~/.vimrc
 ```
 
 ## Features
