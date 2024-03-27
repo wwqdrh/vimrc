@@ -1,0 +1,21 @@
+[submodule "pack/navigation/start/nerdtree"]
+	path = pack/navigation/start/nerdtree
+	url = https://github.com/preservim/nerdtree.git
+[submodule "pack/navigation/start/ctrlp"]
+	path = pack/navigation/start/ctrlp
+	url = https://github.com/ctrlpvim/ctrlp.vim.git
+[submodule "pack/text/start/nerdcommenter"]
+	path = pack/text/start/nerdcommenter
+	url = https://github.com/preservim/nerdcommenter.git
+[submodule "pack/ui/start/signify"]
+	path = pack/ui/start/signify
+	url = https://github.com/mhinz/vim-signify.git
+[submodule "pack/ui/start/fugitive"]
+	path = pack/ui/start/fugitive
+	url = https://github.com/tpope/vim-fugitive.git
+[submodule "pack/navigation/start/ack"]
+	path = pack/navigation/start/ack
+	url = https://github.com/mileszs/ack.vim.git
+[submodule "pack/jvirtanen/start/vim-hcl"]
+	path = pack/jvirtanen/start/vim-hcl
+	url = https://github.com/jvirtanen/vim-hcl.git
