@@ -55,6 +55,7 @@ function parse_section() {
   local source=""
   local include=""
   local flags=""
+  local language=""
   local file=""
   local json=""
 
@@ -75,6 +76,9 @@ function parse_section() {
       include)
         include=$(realpath $__DIRNAME/$value)
         ;;
+      language)
+        language=$value
+        ;;
       flags)
         flags=$value
         ;;
@@ -94,7 +98,7 @@ function parse_section() {
   file=$(basename "$source")
   directory=$(dirname "$source")
 
-  json=$(echo "{ \"directory\": \"${source}\", \"arguments\": [ \"/usr/bin/clang++\", \"-std=c++17\", \"-I${include}\", \"-c\", \"${relsource}\", \"-o\", \"${file%.*}.o\" ], \"file\": \"$file\" }")
+  json=$(echo "{ \"directory\": \"${source}\", \"arguments\": [ \"/usr/bin/clang++\", \"-std=${language}\", \"${flags}\", \"-I${include}\", \"-c\", \"${relsource}\", \"-o\", \"${file%.*}.o\" ], \"file\": \"$file\" }")
 
   # 输出cmakelists.txt
   echo "add_executable(${section} ${relsource})" >>  $__CMAKELISTS
@@ -119,13 +123,17 @@ function run() {
 }
 
 case "$1" in
-    compile)
+    c)
         compile "$2"
         ;;
-    build)
+    b)
         build "$2"
         ;;
-    run)
+    r)
+        run "$2"
+        ;;
+    br)
+        build "$2"
         run "$2"
         ;;
     *)
