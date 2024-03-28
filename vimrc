@@ -158,6 +158,12 @@ let g:NERDTreeShowHidden=1
 let g:NERDSpaceDelims = 1
 let g:NERDDefaultAlign = 'left'
 
+"------ coc.nvim Options ------
+" GoTo code navigation
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
 
 "------  Fugitive Plugin Options  ------
 "https://github.com/tpope/vim-fugitive

@@ -21,6 +21,19 @@ mv ~/.vimrc.bak ~/.vimrc
 * Additional features when running under MacVIM
 * Quickly navigate to files using a fuzzy finder
 
+### language support
+
+> because coc.nvim, you must have a node, so add it in install.sh
+
+`c`
+
+```bash
+sudo apt-get install clangd
+
+# invim
+:CocInstall coc-clangd
+```
+
 ### Leader Key
 
 - Space

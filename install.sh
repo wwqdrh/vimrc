@@ -1,5 +1,11 @@
 #!/bin/bash
 
+sudo apt-get update && sudo apt-get install git silversearcher-ag
+
+echo "install node for coc.nvim..."
+curl -sL https://install-node.vercel.app/lts | sudo bash
+echo "install node done..."
+
 cd ~
 
 git clone https://github.com/wwqdrh/vimrc.git .vim
