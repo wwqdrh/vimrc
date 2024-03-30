@@ -14,6 +14,11 @@ set ruler
 set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
 set splitbelow
 set splitright
+set foldmethod=indent
+set foldlevel=2
+
+" opt pack
+packadd termdebug
 
 " Toggle whitespace visibility with ,s
 nmap <Leader>s :set list!<CR>
@@ -193,6 +198,8 @@ nmap <silent> gd <Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
+
+noremap <silent> <C-o> :CocList outline<CR>
 
 "------  Fugitive Plugin Options  ------
 "https://github.com/tpope/vim-fugitive

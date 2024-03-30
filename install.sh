@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo apt-get update && sudo apt-get install git silversearcher-ag
+sudo apt-get update && sudo apt-get install git silversearcher-ag tmux gdb
 
 echo "install node for coc.nvim..."
 curl -sL https://install-node.vercel.app/lts | sudo bash
@@ -30,3 +30,14 @@ if [ -f ~/.vimrc ]; then
 fi
 
 ln -s ~/.vim/vimrc ~/.vimrc
+
+echo "配置tmux..."
+
+cat >> ~/.tmux.conf << EOF
+# 开启鼠标支持
+set-option -g mouse on
+
+# 允许鼠标滚动
+bind-key -n WheelUpPane if-shell -F -t = "#{alternate_on}" "send-keys -M" "select-pane -t =; copy-mode -e; send-keys -M"  
+bind-key -n WheelDownPane if-shell -F -t = "#{alternate_on}" "send-keys -M" "select-pane -t =; send-keys -M"
+EOF

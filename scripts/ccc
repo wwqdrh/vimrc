@@ -19,7 +19,6 @@ function compile() {
     # cmakelists
     echo "cmake_minimum_required(VERSION 3.20)" > $__CMAKELISTS
     echo "project(example)" >> $__CMAKELISTS
-    echo "set(CMAKE_CXX_STANDARD 17)" >> $__CMAKELISTS
     echo "set(CMAKE_EXPORT_COMPILE_COMMANDS ON)" >> $__CMAKELISTS
     # compile_commands.json
     echo "[" > $__COMPILECOMMAND
@@ -97,11 +96,14 @@ function parse_section() {
   # 从source中提取文件名
   file=$(basename "$source")
   directory=$(dirname "$source")
+  compiler=$(get_compiler "$language")
 
-  json=$(echo "{ \"directory\": \"${source}\", \"arguments\": [ \"/usr/bin/clang++\", \"-std=${language}\", \"${flags}\", \"-I${include}\", \"-c\", \"${relsource}\", \"-o\", \"${file%.*}.o\" ], \"file\": \"$file\" }")
+  json=$(echo "{ \"directory\": \"${source}\", \"arguments\": [ \"${compiler}\", \"-std=${language}\", \"${flags}\", \"-I${include}\", \"-c\", \"${relsource}\", \"-o\", \"${file%.*}.o\" ], \"file\": \"$file\" }")
 
   # 输出cmakelists.txt
   echo "add_executable(${section} ${relsource})" >>  $__CMAKELISTS
+  language2proper ${language} ${section}
+  echo "target_compile_definitions(${section} PRIVATE ${flags})" >>   $__CMAKELISTS
   if [[ ! -z "$source" ]]; then
     echo "target_include_directories(${section} PRIVATE ${include})" >> $__CMAKELISTS
   fi
@@ -109,9 +111,74 @@ function parse_section() {
   echo "$json"
 }
 
+function get_compiler() {
+    local lang="$1"
+    case "$lang" in
+        c++11|c++14|c++17|c++20|c++23|c++)
+            echo "/usr/bin/g++"
+            ;;
+        c99|c11|c)
+            echo "/usr/bin/gcc"
+            ;;
+        *)
+            echo "Invalid language: $lang" >&2
+            return 1
+    esac
+}
+
+function language2proper() {
+    local lang="$1"
+    local section="$2"
+    local properties=""
+    case "$lang" in
+        c++11)
+            properties="CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            ;;
+        c++14)
+            properties="CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            ;;
+        c++17)
+            properties="CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            ;;
+        c++20)
+            properties="CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            ;;
+        c++|c++23)
+            properties="CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            ;;
+        c99)
+            echo "set_target_properties(${section} PROPERTIES
+                C_STANDARD 99
+                C_STANDARD_REQUIRED ON
+                C_EXTENSIONS OFF
+            )" >> $__CMAKELISTS
+            ;;
+        c11|c)
+            echo "set_target_properties(${section} PROPERTIES
+                C_STANDARD 11
+                C_STANDARD_REQUIRED ON
+                C_EXTENSIONS OFF
+            )" >> $__CMAKELISTS
+            ;;
+        *)
+            echo "Invalid language standard: $lang" >&2
+            return 1
+    esac
+}
+
 function build() {
     cmake -S . -B build
     make -C build "$1"
+}
+
+function build_debug() {
+  cmake -D CMAKE_BUILD_TYPE=debug -S . -B build
+  make -C build "$1"
 }
 
 function run() {
@@ -128,6 +195,9 @@ case "$1" in
         ;;
     b)
         build "$2"
+        ;;
+    bd)
+        build_debug "$2"
         ;;
     r)
         run "$2"
