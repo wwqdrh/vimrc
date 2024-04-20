@@ -106,7 +106,7 @@ check_prefix() {
   fi
 }
 
-install_node() {
+function install_node() {
   # Resolve the requested version tag into an existing Node.js version
   echo "https://resolve-node.vercel.app/?tag=${VERSION}&platform=${PLATFORM}&arch=${ARCH}"
   HEADERS="$(curl -sfLSI "https://resolve-node.vercel.app/?tag=${VERSION}&platform=${PLATFORM}&arch=${ARCH}")"
@@ -156,8 +156,8 @@ install_node() {
   complete "Done"
 }
 
-install_basic() {
-  sudo apt-get update && sudo apt-get install git silversearcher-ag tmux gdb unzip vim
+function install_basic() {
+  sudo apt-get update && sudo apt-get install git silversearcher-ag tmux gdb unzip
 
   cd ~
 
@@ -194,6 +194,19 @@ set-option -g mouse on
 bind-key -n WheelUpPane if-shell -F -t = "#{alternate_on}" "send-keys -M" "select-pane -t =; copy-mode -e; send-keys -M"  
 bind-key -n WheelDownPane if-shell -F -t = "#{alternate_on}" "send-keys -M" "select-pane -t =; send-keys -M"
 EOF
+}
+
+function install_vim(){
+  sudo apt-get update && sudo apt-get install libncurses5-dev
+  mkdir ~/vim_src
+  pushd ~/vimrc
+  curl -L https://github.com/vim/vim/archive/refs/tags/v9.1.0356.zip -o vim.zip
+  unzip vim.zip
+  cd vim-9.1.0356
+  ./configure
+  make && make install
+  popd
+  rm -rf ~/vim_src
 }
 
 # defaults
@@ -245,6 +258,6 @@ if [ -n "$PROXY" ]; then
   export all_proxy="socks5://$PROXY"
 fi
 
-
 install_basic
 install_node
+install_vim

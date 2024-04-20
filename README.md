@@ -4,6 +4,9 @@
 curl -sL https://raw.githubusercontent.com/wwqdrh/vimrc/main/install.sh | sudo bash -x
 # or
 curl -sL https://raw.githubusercontent.com/wwqdrh/vimrc/main/install.sh | sudo bash -x --network [proxyip:port]
+# or
+# if use lower ubuntu version, example ubuntu 16
+curl -sL https://raw.githubusercontent.com/wwqdrh/vimrc/main/install.sh | sudo bash -x --version v16.16.0
 ```
 
 ## Uninstall
