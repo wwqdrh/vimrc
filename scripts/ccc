@@ -54,6 +54,7 @@ function parse_section() {
   local source=""
   local include=""
   local flags=""
+  local links=""
   local language=""
   local file=""
   local json=""
@@ -81,6 +82,9 @@ function parse_section() {
       flags)
         flags=$value
         ;;
+      links)
+        links=$value
+        ;;
       *)
         echo "无效的键: $key" >&2
         exit 1
@@ -107,6 +111,7 @@ function parse_section() {
   if [[ ! -z "$source" ]]; then
     echo "target_include_directories(${section} PRIVATE ${include})" >> $__CMAKELISTS
   fi
+  echo "target_link_libraries(${section} PRIVATE ${links})" >> $__CMAKELISTS
   # 返回json对象
   echo "$json"
 }
@@ -152,18 +157,10 @@ function language2proper() {
             echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
             ;;
         c99)
-            echo "set_target_properties(${section} PROPERTIES
-                C_STANDARD 99
-                C_STANDARD_REQUIRED ON
-                C_EXTENSIONS OFF
-            )" >> $__CMAKELISTS
+            echo "set_target_properties(${section} PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)" >> $__CMAKELISTS
             ;;
         c11|c)
-            echo "set_target_properties(${section} PROPERTIES
-                C_STANDARD 11
-                C_STANDARD_REQUIRED ON
-                C_EXTENSIONS OFF
-            )" >> $__CMAKELISTS
+            echo "set_target_properties(${section} PROPERTIES C_STANDARD 11 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)" >> $__CMAKELISTS
             ;;
         *)
             echo "Invalid language standard: $lang" >&2

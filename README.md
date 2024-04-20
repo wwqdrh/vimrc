@@ -1,7 +1,9 @@
 ## Install
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/wwqdrh/vimrc/main/install.sh | bash
+curl -sL https://raw.githubusercontent.com/wwqdrh/vimrc/main/install.sh | sudo bash -x
+# or
+curl -sL https://raw.githubusercontent.com/wwqdrh/vimrc/main/install.sh | sudo bash -x --network [proxyip:port]
 ```
 
 ## Uninstall
