@@ -14,8 +14,10 @@ set ruler
 set statusline=%<%f\ %h%m%r%=%{fugitive#statusline()}\ \ %-14.(%l,%c%V%)\ %P
 set splitbelow
 set splitright
-set foldmethod=indent
-set foldlevel=2
+
+"默认不折叠
+"set foldmethod=indent
+"set foldlevel=2
 
 " opt pack
 packadd termdebug
@@ -333,5 +335,5 @@ else
 	" Inside of a terminal
 	set t_Co=256
 	colorscheme ir_black
-	set mouse=a
+	set mouse=nich    " 支持visual模式从vim中复制文本
 endif

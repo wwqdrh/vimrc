@@ -30,10 +30,24 @@ mv ~/.vimrc.bak ~/.vimrc
 
 > because coc.nvim, you must have a node, so add it in install.sh
 
+设置代理
+
+```bash
+:CocConfig
+
+```
+
 `c`
 
 ```bash
 sudo apt-get install clangd
+#or
+:CocCommand clangd.install
+#or
+curl -L https://github.com/clangd/clangd/releases/download/18.1.3/clangd-linux-18.1.3.zip -o clangd.zip
+unzip clangd.zip
+sudo mv clangd_18.1.3/lib/clang /usr/local/lib
+sudo mv clangd_18.1.3/bin/* /usr/local/bin
 
 # invim
 :CocInstall coc-clangd
