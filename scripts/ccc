@@ -52,7 +52,9 @@ function parse_section() {
   local section=$1
   local relsource=""
   local source=""
-  local include=""
+  local mode="exec" # 可执行文件 static 静态链接库 share 动态连结库
+  local include_origin=""
+  local include_arr=()
   local flags=""
   local links=""
   local language=""
@@ -73,8 +75,12 @@ function parse_section() {
         arr=($relsource)
         source=$(realpath $__DIRNAME/${arr[0]})
         ;;
+      mode)
+        mode="$value"
+        ;;
       include)
-        include=$(realpath $__DIRNAME/$value)
+        include_origin=$value
+        include_arr=($(eval echo $value))
         ;;
       language)
         language=$value
@@ -102,14 +108,30 @@ function parse_section() {
   directory=$(dirname "$source")
   compiler=$(get_compiler "$language")
 
-  json=$(echo "{ \"directory\": \"${source}\", \"arguments\": [ \"${compiler}\", \"-std=${language}\", \"${flags}\", \"-I${include}\", \"-c\", \"${relsource}\", \"-o\", \"${file%.*}.o\" ], \"file\": \"$file\" }")
+  include_str=""
+  for item in "${include_arr[@]}"
+  do
+    include_str+="\"-I$(realpath $__DIRNAME/${item})\", "
+  done
+  json=$(echo "{ \"directory\": \"${source}\", \"arguments\": [ \"${compiler}\", \"-std=${language}\", \"${flags}\", ${include_str} \"-c\", \"${relsource}\", \"-o\", \"${file%.*}.o\" ], \"file\": \"$file\" }")
 
   # 输出cmakelists.txt
-  echo "add_executable(${section} ${relsource})" >>  $__CMAKELISTS
   language2proper ${language} ${section}
+  case "$mode" in
+    "exec")
+        echo "add_executable(${section} ${relsource})" >>  $__CMAKELISTS
+      ;;
+    "static")
+       echo "add_library(${section} STATIC ${relsource})" >>  $__CMAKELISTS
+    ;;
+    "share")
+       echo "add_library(${section} SHARE ${relsource})" >>  $__CMAKELISTS
+    ;;
+  esac
+  
   echo "target_compile_definitions(${section} PRIVATE ${flags})" >>   $__CMAKELISTS
   if [[ ! -z "$source" ]]; then
-    echo "target_include_directories(${section} PRIVATE ${include})" >> $__CMAKELISTS
+    echo "target_include_directories(${section} PRIVATE ${include_origin})" >> $__CMAKELISTS
   fi
   echo "target_link_libraries(${section} PRIVATE ${links})" >> $__CMAKELISTS
   # 返回json对象
@@ -137,24 +159,39 @@ function language2proper() {
     local properties=""
     case "$lang" in
         c++11)
-            properties="CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
-            echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_STANDARD 11)" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
+            # properties="CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            # echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
             ;;
         c++14)
-            properties="CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
-            echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_STANDARD 14)" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
+            # properties="CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            # echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
             ;;
         c++17)
-            properties="CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
-            echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_STANDARD 17)" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
+            # properties="CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            # echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
             ;;
         c++20)
-            properties="CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
-            echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_STANDARD 20)" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
+            # properties="CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            # echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
             ;;
         c++|c++23)
-            properties="CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
-            echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_STANDARD 23)" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
+            echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
+            # properties="CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            # echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
             ;;
         c99)
             echo "set_target_properties(${section} PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)" >> $__CMAKELISTS
