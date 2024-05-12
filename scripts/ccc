@@ -116,7 +116,6 @@ function parse_section() {
   json=$(echo "{ \"directory\": \"${source}\", \"arguments\": [ \"${compiler}\", \"-std=${language}\", \"${flags}\", ${include_str} \"-c\", \"${relsource}\", \"-o\", \"${file%.*}.o\" ], \"file\": \"$file\" }")
 
   # 输出cmakelists.txt
-  language2proper ${language} ${section}
   case "$mode" in
     "exec")
         echo "add_executable(${section} ${relsource})" >>  $__CMAKELISTS
@@ -128,7 +127,7 @@ function parse_section() {
        echo "add_library(${section} SHARE ${relsource})" >>  $__CMAKELISTS
     ;;
   esac
-  
+  language2proper ${language} ${section}
   echo "target_compile_definitions(${section} PRIVATE ${flags})" >>   $__CMAKELISTS
   if [[ ! -z "$source" ]]; then
     echo "target_include_directories(${section} PRIVATE ${include_origin})" >> $__CMAKELISTS
@@ -159,39 +158,44 @@ function language2proper() {
     local properties=""
     case "$lang" in
         c++11)
-            echo "set(CMAKE_CXX_STANDARD 11)" >> $__CMAKELISTS
-            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
-            echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
-            # properties="CXX_STANDARD 11 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            # echo "set(CMAKE_CXX_STANDARD 11)" >> $__CMAKELISTS
+            # echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
+            # echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
+            properties="PUBLIC cxx_std_11"
             # echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            echo "target_compile_features(${section} PUBLIC ${properties})"  >> $__CMAKELISTS
             ;;
         c++14)
-            echo "set(CMAKE_CXX_STANDARD 14)" >> $__CMAKELISTS
-            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
-            echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
-            # properties="CXX_STANDARD 14 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            # echo "set(CMAKE_CXX_STANDARD 14)" >> $__CMAKELISTS
+            # echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
+            # echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
+            properties="PUBLIC cxx_std_14"
             # echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            echo "target_compile_features(${section} PUBLIC ${properties})"  >> $__CMAKELISTS
             ;;
         c++17)
-            echo "set(CMAKE_CXX_STANDARD 17)" >> $__CMAKELISTS
-            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
-            echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
-            # properties="CXX_STANDARD 17 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            # echo "set(CMAKE_CXX_STANDARD 17)" >> $__CMAKELISTS
+            # echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
+            # echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
+            properties="PUBLIC cxx_std_17"
             # echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            echo "target_compile_features(${section} PUBLIC ${properties})"  >> $__CMAKELISTS
             ;;
         c++20)
-            echo "set(CMAKE_CXX_STANDARD 20)" >> $__CMAKELISTS
-            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
-            echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
-            # properties="CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            # echo "set(CMAKE_CXX_STANDARD 20)" >> $__CMAKELISTS
+            # echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
+            # echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
+            properties="PUBLIC cxx_std_20"
             # echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            echo "target_compile_features(${section} PUBLIC ${properties})"  >> $__CMAKELISTS
             ;;
         c++|c++23)
-            echo "set(CMAKE_CXX_STANDARD 23)" >> $__CMAKELISTS
-            echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
-            echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
-            # properties="CXX_STANDARD 23 CXX_STANDARD_REQUIRED ON CXX_EXTENSIONS OFF"
+            # echo "set(CMAKE_CXX_STANDARD 23)" >> $__CMAKELISTS
+            # echo "set(CMAKE_CXX_STANDARD_REQUIRED ON)" >> $__CMAKELISTS
+            # echo "set(CMAKE_CXX_EXTENSIONS OFF)" >> $__CMAKELISTS
+            properties="PUBLIC cxx_std_23"
             # echo "target_compile_features(${section} PUBLIC ${properties})" >> $__CMAKELISTS
+            echo "target_compile_features(${section} PUBLIC ${properties})"  >> $__CMAKELISTS
             ;;
         c99)
             echo "set_target_properties(${section} PROPERTIES C_STANDARD 99 C_STANDARD_REQUIRED ON C_EXTENSIONS OFF)" >> $__CMAKELISTS
@@ -206,12 +210,12 @@ function language2proper() {
 }
 
 function build() {
-    cmake -S . -B build
+    cmake -DCMAKE_BUILD_TYPE=Release -S . -B build
     make -C build "$1"
 }
 
 function build_debug() {
-  cmake -D CMAKE_BUILD_TYPE=debug -S . -B build
+  cmake -DCMAKE_BUILD_TYPE=Debug -S . -B build
   make -C build "$1"
 }
 
